@@ -1,0 +1,263 @@
+ShakeItOffFacade
+composes DesafioController, UsuarioController
+---
+- UC : UsuarioController
+- DC : DesafioController
+---
++ ShakeItOffFacade()
+
+// Usuario
++ registrarUsuario(nome : String, email : String, bio : String, senha : String) : String
++ editarPerfil(idUsuario : String, senha : String, novaSenha : String, novoNome : String, novoEmail : String, novabio : String) : String
++ listarUsuarios(idUsuario : String, senha : String) : String
+
+// Desafio
++ criarDesafio(idUsuario : String, senha : String, titulo : String, descricao : String, inicio : LocalDateTime, fim : LocalDateTime, metaDiariaMin : int, estrategiaPontuacao : String) : String
++ ingressarNoDesafio(idUser : String, senha : String, idDesafio : String) : String
++ listarDesafios(idUser : String, senha : String) : String
++ listarDesafiosAtivos(idUser : String, senha : String) : String
+
+// Checkins
++ registrarCheckin(idUsuario : String, senha : String, idDesafio : String, dataHora : String, atividade : String, duracaoMin : int, intensidade : String, calorias : int, distancia : int) : String
++ listarCheckinDesafio(idUsuario : String, senha : String, idDesafio : String) : String
++ listarCheckinUsuario(idUsuario : String, senha : String) : String
+
+// Ranking e Relatorios
++ finalizarDesafio(idUsuario : String, senha : String, idDesafio : String) : String
++ calcularRankingDesafio(idUsuario : String, senha : String, idDesafio : String) : String
++ verRankingDesafio(idUser : String, senha : String, idDesafio : String, topN : int) : String
++ gerarRelatorio(idUser : String, senha : String, inicio : String, fim : String) : String
+
+// Interacoes Sociais
++ curtirCheckin(idUsuario : String, senha : String, idDesafio : String, idCheckin : String) : void
++ comentarCheckin(idUsuario : String, senha : String, idDesafio : String, idCheckin : String, comentario : String) : String
+---
+
+DesafioController
+composes Desafio, Comentario
+association CheckIn
+---
+- desafios : Map<String, Desafio>
+---
++ DesafioController()
++ criarDesafio(UC : UsuarioController, idUsuario : String, senha : String, titulo : String, descricao : String, inicio : LocalDateTime, fim : LocalDateTime, metaDiariaMin : int, estrategiaPontuacao : String) : String
++ getDesafios() : List<Desafio>
++ gerarRelatorio(UC : UsuarioController, idUser : String, senha : String, inicio : String, fim : String) : String
++ curtirCheckin(UC : UsuarioController, idUsuario : String, senha : String, idDesafio : String, idCheckin : String) : void
++ comentarCheckin(UC : UsuarioController, idUsuario : String, senha : String, idDesafio : String, idCheckin : String, comentario : String) : String
++ listarDesafios(UC : UsuarioController, idUsuario : String, senha : String) : String
++ listarDesafiosAtivos(UC : UsuarioController, idUser : String, senha : String) : String
++ addCheckin(UC : UsuarioController, idUsuario : String, senha : String, idDesafio : String, dataHora : String, atividade : String, duracaoMin : int, intensidade : String, calorias : int, distancia : int) : String
++ converteStringData(dataHora : String) : LocalDateTime
++ listarCheckins(UC : UsuarioController, idUsuario : String, senha : String, idDesafio : String) : String
++ listarCheckinsUsuario(UC : UsuarioController, idUser : String, senha : String) : String
++ calcularRankingDesafio(UC : UsuarioController, idUsuario : String, senha : String, idDesafio : String) : String
++ verRankingDesafio(UC : UsuarioController, idUser : String, senha : String, idDesafio : String, topN : int) : String
++ finalizarDesafio(UC : UsuarioController, idUsuario : String, senha : String, idDesafio : String) : String
++ ingressarNoDesafio(UC : UsuarioController, user : String, senha : String, idDesafio : String) : String
++ getDesafio(idDesafio : String) : Desafio
++ existeDesafio(idDesafio : String) : boolean
+- ordenaDesafiosPorNome() : List<Desafio>
+- ordenaCheckins(checks : List<CheckIn>) : List<CheckIn>
+- ordenarPorDataHora(list : List<CheckIn>) : void
+- userInDesafios(idUser : String) : boolean
+---
+
+UsuarioController
+composes Usuario
+---
+- usuarios : Map<String, Usuario>
+---
++ UsuarioController()
++ registrarUsuario(nome : String, email : String, bio : String, senha : String) : String
++ editarPerfil(idUsuario : String, senha : String, novaSenha : String, novoNome : String, novoEmail : String, novabio : String) : String
++ listarUsuarios(idUsuario : String, senha : String) : String
++ autenticacao(idUsuario : String, senha : String) : boolean
++ existeUsuario(idUsuario : String) : boolean
++ getUsuario(idUser : String) : Usuario
+- ordenarUsuarios(list : List<Usuario>) : void
+- existeEmail(email : String) : boolean
+- ordenarPorDataHora(list : List<CheckIn>) : void
+---
+
+CheckIn
+---
+- idCheckin : String
+- idUser : String
+- nomeUser : String
+- atividade : String
+- intensidade : String
+- dataHora : LocalDateTime
+- duracaoMin : int
+- calorias : int
+- distancia : int
+- curtidas : HashSet<String>
+- comentarios : ArrayList<Comentario>
+---
++ CheckIn(idUsuario : String, nomeUser : String, dataHora : LocalDateTime, atividade : String, duracaoMin : int, intensidade : String, calorias : int, distancia : int)
++ toString() : String
++ compareTo(o : CheckIn) : int
++ setId(idCheckin : String) : void
++ getIntensidade() : String
++ setIntensidade(intensidade : String) : void
++ getDataHora() : LocalDateTime
++ setDataHora(dataHora : LocalDateTime) : void
++ getDuracaoMin() : int
++ setDuracaoMin(duracaoMin : int) : void
++ getCalorias() : int
++ setCalorias(calorias : int) : void
++ getDistancia() : int
++ setDistancia(distancia : int) : void
++ getIdUser() : String
++ getIdCheckin() : String
++ exibirCheckin(nomeDesafio : String) : String
++ addComentario(comentario : Comentario) : void
++ curtir(idUser : String) : void
+---
+
+Desafio
+composes CheckIn, <<Interface>> Pontuacao, PontuacaoUsuario
+---
+- usuarios : List<Usuario>
+- checkins : Map<String, CheckIn>
+- idUsuario : String
+- titulo : String
+- estrategiaDePontuacao : Pontuacao
+- ID : String
+- descricao : String
+- inicio : LocalDateTime
+- fim : LocalDateTime
+- metaDiariaMin : int
+- status : boolean
+- ranking : List<PontuacaoUsuario>
+---
++ Desafio(idUsuario : String, titulo : String, descricao : String, inicio : LocalDateTime, fim : LocalDateTime, metaDiariaMin : int, estrategiaPontuacao : Pontuacao)
++ setRanking(ranking : List<PontuacaoUsuario>) : void
++ toString() : String
++ usuarioInDesafio(idUser : String) : boolean
++ addUsuario(usuario : Usuario) : String
++ addCheckin(novo : CheckIn) : void
++ exibirCheckin(idCheckin : String) : String
++ pegaCheckin(idCheckin : String) : CheckIn
++ existeCheckin(idCheckin : String) : boolean
++ calculaRanking() : void
++ extrairId() : int
++ getLenCheckins() : int
++ isStatus() : boolean
++ setStatus(status : boolean) : void
++ getDescricao() : String
++ getMetaDiariaMin() : int
++ getUsuarios() : List<Usuario>
++ getCheckins() : ArrayList<CheckIn>
++ getIdUsuario() : String
++ getID() : String
++ setID(id : String) : void
++ getInicio() : LocalDateTime
++ getFim() : LocalDateTime
++ getTitulo() : String
++ calculaPontuacao(out : List<CheckIn>) : int
++ getRanking() : List<PontuacaoUsuario>
++ verificarStatus() : boolean
++ compareTo(dsf : Desafio) : int
++ getNomeUser(idUser : String) : String
++ pegaDataAntiga(out : List<CheckIn>) : LocalDateTime
++ achaCheckInUser(user : Usuario) : List<CheckIn>
+---
+
+Usuario
+implements Comparable<Usuario>
+---
+- nome : String
+- email : String
+- bio : String
+- senha : String
+- ID : String
+---
++ Usuario(nome : String, email : String, bio : String, senha : String)
++ toString() : String
++ hashCode() : int
++ equals(obj : Object) : boolean
++ editarDados(novaSenha : String, novoNome : String, novoEmail : String, novaBio : String) : void
++ getNome() : String
++ setNome(nome : String) : void
++ getBio() : String
++ setBio(bio : String) : void
++ getEmail() : String
++ setEmail(email : String) : void
++ getSenha() : String
++ getID() : String
++ setID(n : int) : void
++ compareTo(o : Usuario) : int
+---
+
+Comentario
+---
+- idUsuario : String
+- nomeUser : String
+- comentario : String
+---
++ Comentario(idUsuario : String, nome : String, comentario : String)
++ toString() : String
+---
+
+
+<<Interface>> Pontuacao
+---
+---
++ calculaPontuacao(checkins : List<CheckIn>) : int
+---
+
+
+Distancia
+implements <<Interface>> Pontuacao
+---
+---
++ Distancia()
++ calculaPontuacao(checkins : List<CheckIn>) : int
+---
+Frequencia
+implements <<Interface>> Pontuacao
+---
+---
++ Frequencia()
++ calculaPontuacao(checkins : List<CheckIn>) : int
+---
+
+Tempo
+implements <<Interface>> Pontuacao
+---
+---
++ Tempo()
++ calculaPontuacao(checkins : List<CheckIn>) : int
+---
+
+PontuacaoUsuario
+implements Comparable<<PontuacaoUsuario>>
+---
+- user : Usuario
+- pontuacao : int
+- quantCheckIn : int
+- dataAntiga : LocalDateTime
+---
++ PontuacaoUsuario(user : Usuario, pontuacao : int, quantCheckIn : int, dataAntiga : LocalDateTime)
++ compareTo(o : PontuacaoUsuario) : int
++ getUser() : Usuario
++ getPontuacao() : int
++ getQuantCheckIn() : int
++ getDataAntiga() : LocalDateTime
+---
+
+Validador
+---
+---
++ validador(string : String, campo : String) : void
++ validadorNull(string : String, campo : String) : void
++ validadorInt(i : int, campo : String) : void
++ validadorIntCampo(i : int, campo : String) : void
++ validadorInt0Campo(i : int, campo : String) : void
++ validadorData(dt : LocalDateTime, campo : String) : void
++ validadorDataInicio(inicio : LocalDateTime, fim : LocalDateTime) : void
++ validadorSenha(senha : String, out : String) : void
++ validadorEstrategia(estrategiaPontuacao : String) : void
++ validadorPeriodo(inicio : LocalDateTime, fim : LocalDateTime) : void
+---
